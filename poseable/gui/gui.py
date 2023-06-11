@@ -1,8 +1,8 @@
 import sys
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.backends.backend_qtagg as plt_backend
-from PIL import Image, ImageOps
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QLabel, QPushButton, QFileDialog
 
 
@@ -42,7 +42,7 @@ class ImageWidget(QWidget):
         file_name, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "All Files (*);;Image Files (*.jpg *.jpeg *.png)")
         if file_name:
             self.image_path = file_name
-            image = ImageOps.exif_transpose(Image.open(self.image_path))
+            image = cv2.cvtColor(cv2.imread(str(self.image_path), cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
             self.image = np.asarray(image)
             self.plot_image()
 
