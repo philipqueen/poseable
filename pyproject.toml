@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "poseable"
-description = "Basic template of a python repository"
+description = "GUI for simple manual editing of pose estimation data"
 readme = "README.md"
 authors = [{ name = "poseable", email = "queen.philip@gmail.com" }]
 license = { file = "LICENSE" }
@@ -20,16 +20,17 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ] #additional classifiers can be found here: https://pypi.org/classifiers/
 
-keywords = ["basic",
-            "template",
+keywords = ["pose estimation",
+            "mocap",
             "python",
-            "repository"] #change these to your project keywords
+            "motion capture"] #change these to your project keywords
 
 dependencies = ["pytest",
                 "PyQt6",
                 "rich",
                 "opencv-python",
-                "numpy"] #add additional dependencies here - try to pin versions as minimally as possible
+                "numpy",
+                "matplotlib"] #add additional dependencies here - try to pin versions as minimally as possible
 
 requires-python = ">=3.8"
 
