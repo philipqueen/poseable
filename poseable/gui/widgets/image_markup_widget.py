@@ -6,7 +6,7 @@ import matplotlib.backends.backend_qtagg as plt_backend
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QLabel, QPushButton, QFileDialog
 
 
-class ImageWidget(QWidget):
+class ImageMarkupWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -28,15 +28,15 @@ class ImageWidget(QWidget):
         self.click_label = QLabel(self)
         self.click_label.setText("Click on the image to draw a circle. It's location will be printed!")
 
-        layout = QVBoxLayout()
+        self.layout = QVBoxLayout()
 
-        layout.addWidget(self.load_button_label)
-        layout.addWidget(self.load_button)
-        layout.addWidget(self.toolbar)
-        layout.addWidget(self.canvas)
-        layout.addWidget(self.click_label)
+        self.layout.addWidget(self.load_button_label)
+        self.layout.addWidget(self.load_button)
+        self.layout.addWidget(self.toolbar)
+        self.layout.addWidget(self.canvas)
+        self.layout.addWidget(self.click_label)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
 
     def load_image(self):
         file_name, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "All Files (*);;Image Files (*.jpg *.jpeg *.png)")
@@ -74,7 +74,7 @@ class ImageWidget(QWidget):
 
 def run_me():
     app = QApplication(sys.argv)
-    widget = ImageWidget()
+    widget = ImageMarkupWidget()
     widget.show()
     sys.exit(app.exec())
 

@@ -10,10 +10,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from gui.gui import run_gui_window
+from poseable.gui.main import run_gui_main
 
 def main():
-    run_gui_window()
+    run_gui_main()
 
 if __name__ == '__main__':
     logger.info(f"Running as a script")
