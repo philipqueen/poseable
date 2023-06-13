@@ -5,7 +5,9 @@ from pathlib import Path
 def load_mediapipe_data(data_path: Path, camera, frame, num_tracked_points) -> np.ndarray:
     data_array = np.load(data_path)
 
-    print(f"data_array.shape: {data_array.shape}")
+    print(f"loaded mediapipe data with shape {data_array.shape}")
+
+    print(f"returning data with shape {data_array[camera,frame,:num_tracked_points,:2].shape}")
 
     return data_array[camera,frame,:num_tracked_points,:2]
 
