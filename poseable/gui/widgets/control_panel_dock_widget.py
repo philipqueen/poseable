@@ -1,6 +1,6 @@
 import numpy as np
 from pathlib import Path
-from PyQt6.QtCore import Qt, QAbstractTableModel
+from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex
 from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QDockWidget,
@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QTableView,
     QFileDialog,
     QPushButton,
+    QComboBox
 )
 
 from poseable.core_processes.load_pose_estimation_data.load_mediapipe_data import (
@@ -56,6 +57,14 @@ class ControlPanelWidget(QWidget):
         self.frame = 500
         self.num_tracked_points = 33
 
+        self.select_key_point_label = QLabel("Select key point to edit")
+
+        self.active_table_row_index = 0
+        self.select_key_point_combo_box = QComboBox()
+        for i in range(1, self.num_tracked_points + 1):
+            self.select_key_point_combo_box.addItem(str(i))
+        self.select_key_point_combo_box.currentIndexChanged.connect(self.set_active_table_row_index)
+
         self.table_label = QLabel("Below is a table of your data")
 
         self.table = QTableView()
@@ -65,6 +74,8 @@ class ControlPanelWidget(QWidget):
         self.layout.addWidget(self.choose_data_file_button)
         self.layout.addWidget(self.active_data_path_label)
         self.layout.addWidget(self.load_data_button)
+        self.layout.addWidget(self.select_key_point_label)
+        self.layout.addWidget(self.select_key_point_combo_box)
         self.layout.addWidget(self.table_label)
         self.layout.addWidget(self.table)
         self.layout.addWidget(self.save_data_button)
@@ -97,6 +108,24 @@ class ControlPanelWidget(QWidget):
         self.model = TableModel(self.data)
         self.table.setModel(self.model)
 
+    def handle_click_data(self, click_location: tuple):
+        # Process the data from the Image Markup Widget
+        print(f"updating data with click location")
+        self.update_data(click_location)
+
+    def update_data(self, click_location: tuple):
+        if self.model:
+            x_index = self.model.index(self.active_table_row_index, 0)
+            self.model.setData(x_index, click_location[0], Qt.ItemDataRole.EditRole)
+            y_index = self.model.index(self.active_table_row_index, 1)
+            self.model.setData(y_index, click_location[1], Qt.ItemDataRole.EditRole)
+            # self.table.setModel(self.model)
+        else:
+            print("No data loaded to table, cannot process click")
+
+    def set_active_table_row_index(self):
+        self.active_table_row_index = self.select_key_point_combo_box.currentIndex()
+
 
 class TableModel(QAbstractTableModel):
     def __init__(self, data):
@@ -118,6 +147,7 @@ class TableModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if role == Qt.ItemDataRole.EditRole:
             self._data[index.row(), index.column()] = value
+            self.dataChanged.emit(index, index, [role])
             return True
         return False
 

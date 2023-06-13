@@ -3,10 +3,12 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.backends.backend_qtagg as plt_backend
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QLabel, QPushButton, QFileDialog
 
 
 class ImageMarkupWidget(QWidget):
+    clicked = pyqtSignal(object)
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -39,7 +41,7 @@ class ImageMarkupWidget(QWidget):
         self.setLayout(self.layout)
 
     def load_image(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "All Files (*);;Image Files (*.jpg *.jpeg *.png)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image Files (*.jpg *.jpeg *.png);;All Files (*)")
         if file_name:
             self.image_path = file_name
             image = cv2.cvtColor(cv2.imread(str(self.image_path), cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
@@ -63,6 +65,7 @@ class ImageMarkupWidget(QWidget):
         print(f"you clicked at {self.click_location}")
 
         self.click_label.setText(f"you clicked at {self.click_location}")
+        self.clicked.emit(self.click_location)
         self.draw_circle_at_click()
 
     def draw_circle_at_click(self):

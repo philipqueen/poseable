@@ -22,10 +22,11 @@ class PoseableMainWindow(QMainWindow):
         self.image_markup_widget = ImageMarkupWidget()
         self.layout.addWidget(self.image_markup_widget)
 
-        self._control_panel_dock_widget = ControlPanelDockWidget(parent=self)
-        self._control_panel_dock_widget.setMinimumWidth(500)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._control_panel_dock_widget)
-        # self.layout.addWidget(self._control_panel_widget)
+        self.control_panel_dock_widget = ControlPanelDockWidget(parent=self)
+        self.control_panel_dock_widget.setMinimumWidth(500)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.control_panel_dock_widget)
+        
+        self.image_markup_widget.clicked.connect(self.control_panel_dock_widget.control_panel_widget.handle_click_data)
 
 
 
