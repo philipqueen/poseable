@@ -30,7 +30,8 @@ dependencies = ["pytest",
                 "rich",
                 "opencv-python",
                 "numpy",
-                "matplotlib"] #add additional dependencies here - try to pin versions as minimally as possible
+                "matplotlib",
+                "pydantic"] #add additional dependencies here - try to pin versions as minimally as possible
 
 requires-python = ">=3.8"
 

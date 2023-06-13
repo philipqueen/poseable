@@ -16,6 +16,9 @@ from PyQt6.QtWidgets import (
 from poseable.core_processes.load_pose_estimation_data.load_mediapipe_data import (
     load_mediapipe_data,
 )
+from poseable.core_processes.pose_estimation_model_info.mediapipe_keypoints import (
+    mediapipe_body_keypoints,
+)
 
 
 class ControlPanelDockWidget(QDockWidget):
@@ -61,8 +64,8 @@ class ControlPanelWidget(QWidget):
 
         self.active_table_row_index = 0
         self.select_key_point_combo_box = QComboBox()
-        for i in range(1, self.num_tracked_points + 1):
-            self.select_key_point_combo_box.addItem(str(i))
+        for keypoint in mediapipe_body_keypoints:
+            self.select_key_point_combo_box.addItem(keypoint)
         self.select_key_point_combo_box.currentIndexChanged.connect(self.set_active_table_row_index)
 
         self.table_label = QLabel("Below is a table of your data")
@@ -151,9 +154,15 @@ class TableModel(QAbstractTableModel):
             return True
         return False
 
-    # def headerData(self, col, orientation, role):
-    #     if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
-    #         return self._data.columns[col]
+    def headerData(self, section, orientation, role):
+        print(section)
+        # section is the index of the column/row.
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Vertical:
+                return str(mediapipe_body_keypoints[section])
+
+            if orientation == Qt.Orientation.Horizontal:
+                return str(["X","Y"][section])
 
     def flags(self, index):
         return (
