@@ -17,6 +17,12 @@ class ImageMarkupWidget(QWidget):
         self.load_button = QPushButton("Load Image")
         self.load_button.clicked.connect(self.load_image)
 
+        self.load_video_button = QPushButton("Load Video")
+        self.load_video_button.clicked.connect(self.load_video)
+
+        self.next_frame_button = QPushButton("Next Frame")
+        self.next_frame_button.clicked.connect(self.next_frame)
+
         self.click_location = ()
 
         self.figure = plt.figure()
@@ -34,6 +40,8 @@ class ImageMarkupWidget(QWidget):
 
         self.layout.addWidget(self.load_button_label)
         self.layout.addWidget(self.load_button)
+        self.layout.addWidget(self.load_video_button)
+        self.layout.addWidget(self.next_frame_button)
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.layout.addWidget(self.click_label)
@@ -47,6 +55,31 @@ class ImageMarkupWidget(QWidget):
             image = cv2.cvtColor(cv2.imread(str(self.image_path), cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
             self.image = np.asarray(image)
             self.plot_image()
+
+    def load_video(self):
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Video", "", "Video Files (*.mp4 *.mov)")
+        self.cap = cv2.VideoCapture(str(file_name))
+        self.convert_image(self.read_frame())
+        self.plot_image()
+
+    def read_frame(self):
+        ret, frame = self.cap.read()
+        if not ret:
+            self.handle_end_of_video()
+        else:
+            return frame
+        
+    def convert_image(self, image):
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        self.image = np.asarray(rgb_image)
+        
+    def handle_end_of_video(self):
+        self.cap.release()
+        print("end of video")
+
+    def next_frame(self):
+        self.convert_image(self.read_frame())
+        self.plot_image()
 
     def plot_image(self):
         self.figure.clear()

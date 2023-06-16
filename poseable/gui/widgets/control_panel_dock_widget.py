@@ -71,6 +71,7 @@ class ControlPanelWidget(QWidget):
         self.table_label = QLabel("Below is a table of your data")
 
         self.table = QTableView()
+        self.model = None
 
         self.save_data_button = QPushButton("This will save data soon")
 
@@ -155,7 +156,6 @@ class TableModel(QAbstractTableModel):
         return False
 
     def headerData(self, section, orientation, role):
-        print(section)
         # section is the index of the column/row.
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Vertical:
