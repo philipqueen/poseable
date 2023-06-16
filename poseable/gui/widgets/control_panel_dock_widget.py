@@ -5,12 +5,14 @@ from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QDockWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QWidget,
     QLabel,
     QTableView,
     QFileDialog,
     QPushButton,
-    QComboBox
+    QComboBox,
+    QLineEdit,
 )
 
 from poseable.core_processes.load_pose_estimation_data.load_mediapipe_data import (
@@ -51,13 +53,21 @@ class ControlPanelWidget(QWidget):
 
         self.active_data_path_label = QLabel("No data selected")
 
-        self.load_data_button = QPushButton("load data")
-        self.load_data_button.clicked.connect(self.load_data)
-        self.load_data_button.setEnabled(False)
-
         # TODO: drop downs for camera, frame, num_tracked_points based on data model
+        self.camera_frame_box = QHBoxLayout()
         self.camera = 0
-        self.frame = 500
+        self.camera_line_edit = QLineEdit()
+        self.camera_line_edit.setText(str(self.camera))
+        # self.camera_line_edit.textChanged.connect(self.set_camera)
+
+        self.frame = 0
+        self.frame_line_edit = QLineEdit()
+        self.frame_line_edit.setText(str(self.frame))
+        # self.frame_line_edit.textChanged.connect(self.set_frame)
+
+        self.camera_frame_box.addWidget(self.camera_line_edit)
+        self.camera_frame_box.addWidget(self.frame_line_edit)
+
         self.num_tracked_points = 33
 
         self.select_key_point_label = QLabel("Select key point to edit")
@@ -77,7 +87,7 @@ class ControlPanelWidget(QWidget):
 
         self.layout.addWidget(self.choose_data_file_button)
         self.layout.addWidget(self.active_data_path_label)
-        self.layout.addWidget(self.load_data_button)
+        self.layout.addLayout(self.camera_frame_box)
         self.layout.addWidget(self.select_key_point_label)
         self.layout.addWidget(self.select_key_point_combo_box)
         self.layout.addWidget(self.table_label)
@@ -94,7 +104,7 @@ class ControlPanelWidget(QWidget):
                 str(self.file_path), Qt.TextElideMode.ElideMiddle, 450
             )
             self.active_data_path_label.setText(shortened_path)
-            self.load_data_button.setEnabled(True)
+            self.load_data()
 
     def load_data(self):
         if self.file_path:
@@ -105,12 +115,14 @@ class ControlPanelWidget(QWidget):
                 num_tracked_points=self.num_tracked_points,
             )
             self.load_data_to_table()
+            self.frame = 0
         else:
             raise Exception("No data selected")
 
     def load_data_to_table(self):
         self.model = TableModel(self.data)
         self.table.setModel(self.model)
+        self.table.selectionModel().currentChanged.connect(self.on_table_selection_changed)
 
     def handle_click_data(self, click_location: tuple):
         # Process the data from the Image Markup Widget
@@ -129,6 +141,14 @@ class ControlPanelWidget(QWidget):
 
     def set_active_table_row_index(self):
         self.active_table_row_index = self.select_key_point_combo_box.currentIndex()
+
+    def on_table_selection_changed(self, current_index):
+        if current_index.isValid():
+            self.active_table_row_index = current_index.row()
+            self.select_key_point_combo_box.setCurrentIndex(self.active_table_row_index)
+            print(f"Selected row index: {self.active_table_row_index}")
+        else:
+            print("No row is currently selected")
 
 
 class TableModel(QAbstractTableModel):
