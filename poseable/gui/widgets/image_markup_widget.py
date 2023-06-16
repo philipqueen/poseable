@@ -11,17 +11,16 @@ class ImageMarkupWidget(QWidget):
     clicked = pyqtSignal(object)
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.frame_number = 0
 
-        self.load_button_label = QLabel("Choose an image to play around with below:")
-
-        self.load_button = QPushButton("Load Image")
-        self.load_button.clicked.connect(self.load_image)
+        self.load_button_label = QLabel("Choose a video to play around with below:")
 
         self.load_video_button = QPushButton("Load Video")
         self.load_video_button.clicked.connect(self.load_video)
 
         self.next_frame_button = QPushButton("Next Frame")
         self.next_frame_button.clicked.connect(self.next_frame)
+        self.next_frame_button.setEnabled(False)
 
         self.click_location = ()
 
@@ -35,16 +34,18 @@ class ImageMarkupWidget(QWidget):
 
         self.click_label = QLabel(self)
         self.click_label.setText("Click on the image to draw a circle. It's location will be printed!")
+        self.frame_counter = QLabel(self)
+        self.frame_counter.setText(f"Load video to display current frame")
 
         self.layout = QVBoxLayout()
 
         self.layout.addWidget(self.load_button_label)
-        self.layout.addWidget(self.load_button)
         self.layout.addWidget(self.load_video_button)
         self.layout.addWidget(self.next_frame_button)
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.layout.addWidget(self.click_label)
+        self.layout.addWidget(self.frame_counter)
 
         self.setLayout(self.layout)
 
@@ -58,15 +59,21 @@ class ImageMarkupWidget(QWidget):
 
     def load_video(self):
         file_name, _ = QFileDialog.getOpenFileName(self, "Select Video", "", "Video Files (*.mp4 *.mov)")
-        self.cap = cv2.VideoCapture(str(file_name))
-        self.convert_image(self.read_frame())
-        self.plot_image()
+        if file_name:
+            self.cap = cv2.VideoCapture(str(file_name))
+            self.convert_image(self.read_frame())
+            self.frame_number = 0
+            self.frame_counter.setText(f"Current Frame: {self.frame_number}")
+            self.plot_image()
+            self.next_frame_button.setEnabled(True)
 
     def read_frame(self):
         ret, frame = self.cap.read()
         if not ret:
             self.handle_end_of_video()
         else:
+            self.frame_number += 1
+            self.frame_counter.setText(f"Current Frame: {self.frame_number}")
             return frame
         
     def convert_image(self, image):
@@ -93,13 +100,13 @@ class ImageMarkupWidget(QWidget):
         self.canvas.draw()
 
     def click_event(self, event):
-        self.click_location = (int(event.xdata), int(event.ydata))
+        if event.xdata is not None and event.ydata is not None:
+            self.click_location = (int(event.xdata), int(event.ydata))
+            print(f"you clicked at {self.click_location}")
 
-        print(f"you clicked at {self.click_location}")
-
-        self.click_label.setText(f"you clicked at {self.click_location}")
-        self.clicked.emit(self.click_location)
-        self.draw_circle_at_click()
+            self.click_label.setText(f"you clicked at {self.click_location}")
+            self.clicked.emit(self.click_location)
+            self.draw_circle_at_click()
 
     def draw_circle_at_click(self):
         if self.clicked_point_circle:
